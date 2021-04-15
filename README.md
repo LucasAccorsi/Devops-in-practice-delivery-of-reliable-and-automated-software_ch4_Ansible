@@ -5,6 +5,6 @@ To use this project it is necessary to install VirtualBox on the website: https:
 
 Access the virtual machine by executing the following commands: $ vagrant ssh db $ mysql -u root -p -e "SHOW DATABASES" enter the password: secret $ mysql -u loja -p loja_schema -e "select database(), user()" enter the password: lojasecret
 
-To check the web server, simply access the following sites in your browser: http://192.168.33.12:8080/devopsnapratica/ http://192.168.33.12:8080/devopsnapratica/admin/ to log in at http://192.168.33.12:8080/devopsnapratica/admin/ just put in Username: admin and Password: admin
+To check the web server, simply access the following sites in your browser: http://192.168.33.12:8080/devopsnapratica/ and http://192.168.33.12:8080/devopsnapratica/admin/ to log in at http://192.168.33.12:8080/devopsnapratica/admin/ just put in Username: admin and Password: admin
 
 To check the monitoring server, simply access the following website in your browser: http://192.168.33.14/nagios3/ by entering the username: nagiosadmin and password: secret or directly accessing the link http://nagiosadmin:secret@192.168.33.14/nagios3 remembering that this is not a secure way of access, to check if everything is correct it is possible to navigate through the left side menu for Services and Host Groups to access the monitoring of services and host groups.
