@@ -1,0 +1,51 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Comando tee nagios
+      ansible.builtin.copy:
+        content: "Package: nagios* Pin: release n=raring Pin-Priority: 990"
+        dest: /etc/apt/preferences.d/nagios
+        
+    - name: Comando tee raring.list
+      ansible.builtin.copy:
+        content: "deb http://old-releases.ubuntu.com/ubuntu raring main"
+        dest: /etc/apt/sources.list.d/raring.list
+      
+    - name: Apt-get update 
+      apt:
+        update_cache: yes
+        
+    - name: Instalar nagios3
+      apt:
+        name: nagios3
+        state: present
+
+    - name: Verificar se nagios3 esta rodando
+      service:
+        name: nagios3
+        state: started
+        enabled: yes
+    
+    - name: Alterar senha do nagiosadmin
+      command: htpasswd -b -c /etc/nagios3/htpasswd.users nagiosadmin secret
+      become: true
+      notify:
+        - restart nagios3
+        
+    - name: Mover loja_virtual.cfg
+      ansible.builtin.copy:
+        src: conf_Monitor/loja_virtual.cfg
+        dest: /etc/nagios3/conf.d/loja_virtual.cfg
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+      - restart nagios3
+                
+  handlers:
+    - name: restart nagios3
+      service:
+        name: nagios3
+        state: restarted

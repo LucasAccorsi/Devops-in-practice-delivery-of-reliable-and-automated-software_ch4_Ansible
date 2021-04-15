@@ -1,0 +1,67 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Instalar mysql-server python-mysqldb
+      apt:
+        name: [mysql-server, python-mysqldb]
+        state: present
+        
+    - name: Alterar senha do usuario root
+      mysql_user:
+        name: root
+        password: secret
+        host_all: yes
+        check_implicit_admin: yes
+        login_user: root
+        login_password: secret
+      notify:
+        - restart mysql
+        
+    - name: Mover allow_external.cnf
+      ansible.builtin.copy:
+        src: conf_DB/allow_external.cnf
+        dest: /etc/mysql/conf.d/allow_external.cnf
+        owner: mysql
+        group: mysql
+        mode: 0644
+      notify:
+        - restart mysql
+
+    - name: Criar base de dados loja_schema
+      mysql_db:
+        name: loja_schema
+        state: present
+        login_user: root
+        login_password: secret
+      notify:
+        - restart mysql
+
+    - name: Remover todas as contas de usuarios anonimos
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: secret
+      notify:
+        - restart mysql
+
+    - name: Adicionar usuario loja para loja_schema
+      mysql_user:
+        name: loja
+        password: lojasecret
+        host: '%'
+        priv: '*.*:ALL,GRANT'
+        state: present
+        login_user: root
+        login_password: secret
+      notify:
+        - restart mysql
+
+  handlers:
+    - name: restart mysql
+      service:
+        name: mysql
+        state: restarted

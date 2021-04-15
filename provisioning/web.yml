@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: true
+    
+  tasks:
+    
+    - name: Instalar tomcat7 mysql-client
+      apt:
+        name: [mysql-client, tomcat7]
+        state: present
+        
+    - name: Mover .keystore
+      ansible.builtin.copy:
+        src: conf_Web/.keystore
+        dest: /var/lib/tomcat7/conf/.keystore
+        owner: root
+        group: tomcat7
+        mode: 0640
+      notify:
+      - restart tomcat7
+      
+    - name: Mover server.xml
+      ansible.builtin.copy:
+        src: conf_Web/server.xml
+        dest: /var/lib/tomcat7/conf/server.xml
+        owner: root
+        group: tomcat7
+        mode: 0644
+      notify:
+      - restart tomcat7
+        
+    - name: Mover tomcat7
+      ansible.builtin.copy:
+        src: conf_Web/tomcat7
+        dest: /etc/default/tomcat7
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+      - restart tomcat7
+      
+    - name: Mover context.xml
+      ansible.builtin.copy:
+        src: conf_Web/context.xml
+        dest: /var/lib/tomcat7/conf/context.xml
+        owner: root
+        group: tomcat7
+        mode: 0644
+      notify:
+        - restart tomcat7
+        
+    - name: Mover devopsnapratica.war
+      ansible.builtin.copy:
+        src: conf_Web/devopsnapratica.war
+        dest: /var/lib/tomcat7/webapps/devopsnapratica.war
+        owner: tomcat7
+        group: tomcat7
+        mode: 0644
+      notify:
+        - restart tomcat7
+        
+  handlers:
+    - name: restart tomcat7
+      ansible.builtin.service:
+        name: tomcat7
+        state: restarted
+        enabled: yes
+        
